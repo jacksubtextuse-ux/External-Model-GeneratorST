@@ -23,6 +23,224 @@ ASSERTIONS_LP = BASE / "VERVE-Proforma-Cleaner-v1.1-LP-Assertions.json"
 ASSERTIONS_LENDER = BASE / "VERVE-Proforma-Cleaner-v1.1-Lender-Assertions.json"
 
 
+def _inject_theme() -> None:
+    st.markdown(
+        """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+
+:root {
+  --slate-gray: #2b2825;
+  --everest-green: #16352e;
+  --birch: #a95818;
+  --brown: #512213;
+  --beige: #f7f1e3;
+  --lime-green: #c1d100;
+  --bg: #2b2825;
+  --panel: #221f1c;
+  --line: #3a352f;
+  --chip: #2d2925;
+  --muted: #d9cfbe;
+  --ink: #f7f1e3;
+}
+
+[data-testid="stAppViewContainer"],
+[data-testid="stAppViewContainer"] > .main,
+.stApp {
+  background:
+    radial-gradient(1200px 460px at 100% -90px, #35302b 0%, rgba(53, 48, 43, 0) 58%),
+    linear-gradient(180deg, #2a2623 0%, var(--bg) 100%) !important;
+  color: var(--ink) !important;
+}
+
+[data-testid="stHeader"] {
+  background: transparent !important;
+}
+
+.block-container {
+  max-width: 1120px;
+  padding-top: 0.8rem;
+  padding-bottom: 2rem;
+}
+
+html, body, [class*="css"], p, div, span, label {
+  font-family: "Source Sans 3", "Segoe UI", Calibri, sans-serif;
+  color: var(--ink);
+}
+
+.brand-wrap {
+  margin-bottom: 1rem;
+}
+
+.brand-mark {
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: clamp(2.2rem, 8vw, 4.2rem);
+  line-height: 0.9;
+  color: var(--lime-green);
+  text-transform: lowercase;
+}
+
+.brand-rule {
+  margin-top: 0.4rem;
+  width: min(460px, 84vw);
+  border-top: 5px solid var(--lime-green);
+}
+
+.brand-title {
+  margin-top: 0.7rem;
+  font-family: "Libre Baskerville", Georgia, serif;
+  color: var(--lime-green);
+  font-size: clamp(1.4rem, 3vw, 2.15rem);
+}
+
+.brand-subtitle {
+  margin-top: 0.45rem;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h1, h2, h3 {
+  font-family: "Libre Baskerville", Georgia, serif;
+  color: var(--lime-green);
+}
+
+[data-testid="stForm"] {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+}
+
+div[data-baseweb="input"] > div,
+div[data-baseweb="base-input"] > div,
+div[data-baseweb="select"] > div,
+[data-testid="stFileUploaderDropzone"],
+input[type="text"],
+input[type="password"],
+textarea {
+  background: #2a2622 !important;
+  border: 1px solid #4a443d !important;
+  color: var(--ink) !important;
+  border-radius: 8px !important;
+}
+
+div[data-baseweb="select"] * {
+  color: var(--ink) !important;
+}
+
+div[data-baseweb="select"] svg {
+  fill: var(--ink) !important;
+}
+
+[data-testid="stFileUploaderDropzone"] {
+  min-height: 88px;
+}
+
+[data-testid="stFileUploaderDropzone"] * {
+  color: var(--ink) !important;
+}
+
+label, .stSelectbox label, .stTextInput label, .stFileUploader label {
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+}
+
+.stButton > button {
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: linear-gradient(180deg, #d4df3f 0%, var(--lime-green) 100%) !important;
+  color: var(--everest-green) !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  padding: 0.56rem 0.95rem !important;
+}
+
+.stButton > button[kind="secondary"] {
+  background: #3a352f !important;
+  color: var(--ink) !important;
+  border: 1px solid #585046 !important;
+}
+
+[data-testid="metric-container"] {
+  background: var(--chip);
+  border: 1px solid #453f37;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+details {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+
+.stCodeBlock pre {
+  background: #2c2823 !important;
+  border: 1px solid #4a433b !important;
+  border-radius: 8px !important;
+}
+
+.stDownloadButton > button {
+  border: 0 !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  background: linear-gradient(180deg, #d4df3f 0%, var(--lime-green) 100%) !important;
+  color: var(--everest-green) !important;
+}
+
+[data-testid="stProgressBar"] > div {
+  background: var(--chip) !important;
+  border: 1px solid #4a433b !important;
+  border-radius: 999px !important;
+}
+
+[data-testid="stProgressBar"] > div > div {
+  background: linear-gradient(90deg, #d4df3f 0%, var(--lime-green) 100%) !important;
+}
+
+[data-testid="stAlert"] {
+  background: #2d2925 !important;
+  border: 1px solid #453f37 !important;
+  color: var(--ink) !important;
+}
+
+a {
+  color: var(--lime-green);
+}
+
+@media (max-width: 720px) {
+  .brand-mark {
+    font-size: 3rem;
+  }
+  .brand-title {
+    font-size: 1.2rem;
+  }
+  .brand-rule {
+    width: 300px;
+  }
+}
+</style>
+""",
+        unsafe_allow_html=True,
+    )
+
+
+def _render_brand_header(subtitle: str) -> None:
+    st.markdown(
+        f"""
+<div class="brand-wrap">
+  <div class="brand-mark">subtext</div>
+  <div class="brand-rule"></div>
+  <div class="brand-title">MrClean's External Model Generator</div>
+  <div class="brand-subtitle">{subtitle}</div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+
 def _build_run_diagnostics(run_log: list[str], validation: dict, report: dict) -> dict:
     log_lines = run_log or []
     validation_errors = list(validation.get("errors", [])) if isinstance(validation, dict) else []
@@ -68,7 +286,8 @@ def _build_run_diagnostics(run_log: list[str], validation: dict, report: dict) -
 
 
 def _require_login() -> None:
-    st.set_page_config(page_title="MrClean's External Model Generator", layout="centered")
+    st.set_page_config(page_title="MrClean's External Model Generator", layout="wide")
+    _inject_theme()
 
     app_user = os.getenv("VERVE_APP_USER", "").strip()
     app_password = os.getenv("VERVE_APP_PASSWORD", "").strip()
@@ -83,8 +302,8 @@ def _require_login() -> None:
     if st.session_state.authenticated:
         return
 
-    st.title("MrClean's External Model Generator")
-    st.subheader("Sign in")
+    _render_brand_header("Sign in to access the workflow.")
+
     with st.form("login"):
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
@@ -116,12 +335,14 @@ def _assertions_for_option(option: str) -> Path:
 def main() -> None:
     _require_login()
 
-    st.title("MrClean's External Model Generator")
-    st.caption("Upload one raw .xlsm/.xlsx file and run the workflow.")
-
-    if st.button("Log Out"):
-        st.session_state.authenticated = False
-        st.rerun()
+    left, right = st.columns([8, 2], vertical_alignment="top")
+    with left:
+        _render_brand_header("Upload one raw .xlsm/.xlsx file and run the workflow.")
+    with right:
+        st.write("")
+        if st.button("Log Out", type="secondary"):
+            st.session_state.authenticated = False
+            st.rerun()
 
     with st.form("run-workflow"):
         workbook = st.file_uploader("Workbook", type=["xlsm", "xlsx"])
@@ -140,7 +361,6 @@ def main() -> None:
     if not market.strip():
         st.error("Market is required.")
         return
-
 
     run_id = uuid4().hex[:8]
     run_dir = STREAMLIT_UPLOADS / run_id
@@ -239,3 +459,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
