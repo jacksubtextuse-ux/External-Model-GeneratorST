@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - MrClean's External Model Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <main class="auth-wrap">
+    <section class="card auth-card">
+      <header class="brand">
+        <div class="logo-wrap">
+          <img class="logo-img" src="{{ url_for('static', filename='subtext-logo.png') }}" alt="Subtext" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+          <div class="logo-fallback">subtext</div>
+        </div>
+        <div class="logo-rule"></div>
+        <h1>MrClean's External Model Generator</h1>
+        <p class="subtitle">Sign in to access the workflow.</p>
+      </header>
+
+      {% if error %}
+        <section class="card error">
+          <h2>Error</h2>
+          <pre>{{ error }}</pre>
+        </section>
+      {% endif %}
+
+      <form method="post" class="auth-form">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="username" required />
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required />
+
+        <button type="submit">Sign In</button>
+      </form>
+      <p class="auth-note">Authorized users only.</p>
+    </section>
+  </main>
+</body>
+</html>

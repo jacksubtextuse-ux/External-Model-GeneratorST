@@ -1,0 +1,72 @@
+{
+  "before_file": "C:/Users/JackBranding/OneDrive - Subtext/Desktop/New folder/LP VERVE_Chapel Hill_20260304 JB Review.xlsm",
+  "after_file": "C:/Users/JackBranding/OneDrive - Subtext/Desktop/New folder/Copy of LP VERVE_Chapel Hill_20260304 JB Review Finished.xlsm",
+  "sheet_diff": {
+    "removed": [
+      "1-Yr Waterfall",
+      "3-Yr Waterfall",
+      "4-Yr Waterfall",
+      "FR Waterfall Analysis",
+      "Returns Exhibit"
+    ],
+    "added": [
+      "1-Yr Sale",
+      "3-Yr Sale",
+      "4-Yr Sale",
+      "Claude Log"
+    ]
+  },
+  "executive_summary_links": {
+    "J16": "='1-Yr Sale'!Q22",
+    "J17": "='1-Yr Sale'!R22",
+    "K16": "='3-Yr Sale'!Q22",
+    "K17": "='3-Yr Sale'!R22",
+    "L16": "='4-Yr Sale'!Q22",
+    "L17": "='4-Yr Sale'!R22"
+  },
+  "sale_sheet_checks": {
+    "1-Yr Sale": {
+      "gp_fees_label_present": false,
+      "gp_return_label_present": false,
+      "B7": "CASH FLOW SUMMARY",
+      "B19": "Net Equity",
+      "A340": null,
+      "B341": "Monthly",
+      "C341": 12
+    },
+    "3-Yr Sale": {
+      "gp_fees_label_present": false,
+      "gp_return_label_present": false,
+      "B7": "CASH FLOW SUMMARY",
+      "B19": "Net Equity",
+      "A340": null,
+      "B341": "Monthly",
+      "C341": 12
+    },
+    "4-Yr Sale": {
+      "gp_fees_label_present": false,
+      "gp_return_label_present": false,
+      "B7": "CASH FLOW SUMMARY",
+      "B19": "Net Equity",
+      "A340": null,
+      "B341": "Monthly",
+      "C341": 12
+    }
+  },
+  "deleted_sheet_reference_counts_after": {
+    "1-Yr Waterfall": 0,
+    "3-Yr Waterfall": 0,
+    "4-Yr Waterfall": 0,
+    "FR Waterfall Analysis": 0,
+    "Returns Exhibit": 0
+  },
+  "blue_rgb_font_count_after": {
+    "1-Yr Sale": 0,
+    "3-Yr Sale": 0,
+    "4-Yr Sale": 0
+  },
+  "notes": [
+    "LP conversion behavior matches canonical LP workflow intent.",
+    "Unexpected but harmless added sheet: 'Claude Log' (not part of canonical LP steps)."
+  ]
+}

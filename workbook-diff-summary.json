@@ -1,0 +1,165 @@
+{
+  "original": "C:\\Users\\JackBranding\\OneDrive - Subtext\\Desktop\\Codex\\workflows\\verve-proforma-cleaner\\samples\\original.xlsm",
+  "reviewed": "C:\\Users\\JackBranding\\OneDrive - Subtext\\Desktop\\Codex\\workflows\\verve-proforma-cleaner\\samples\\reviewed.xlsm",
+  "removed_sheets": [
+    "3-Yr Co-GP Waterfall",
+    "Building Program",
+    "Change Log",
+    "Construction Pricing",
+    "Historic OpEx Comparison",
+    "Proforma Comparison",
+    "Reassessed 1-Yr Waterfall",
+    "Reassessed 3-Yr Waterfall",
+    "Reassessed 4-Yr Waterfall",
+    "TermSheet",
+    "TermSheet-Ignore"
+  ],
+  "added_sheets": [],
+  "expected_deleted_missing": [],
+  "unexpected_removed": [],
+  "remaining_formula_refs_to_deleted_tabs": {},
+  "spot_checks": [
+    {
+      "sheet": "Executive Summary",
+      "cell": "E5",
+      "orig_value": "VERVE Chapel Hill",
+      "rev_value": "VERVE Chapel Hill",
+      "orig_is_formula": false,
+      "rev_is_formula": false
+    },
+    {
+      "sheet": "Executive Summary",
+      "cell": "J15",
+      "orig_value": "=Q5",
+      "rev_value": 0.0515,
+      "orig_is_formula": true,
+      "rev_is_formula": false
+    },
+    {
+      "sheet": "Executive Summary",
+      "cell": "K15",
+      "orig_value": "=J15+Q6+Q6",
+      "rev_value": 0.0535,
+      "orig_is_formula": true,
+      "rev_is_formula": false
+    },
+    {
+      "sheet": "Executive Summary",
+      "cell": "L15",
+      "orig_value": "=K15+Q6",
+      "rev_value": 0.0545,
+      "orig_is_formula": true,
+      "rev_is_formula": false
+    },
+    {
+      "sheet": "Executive Summary",
+      "cell": "E60",
+      "orig_value": "=+'3-Yr Waterfall'!D64",
+      "rev_value": "=+'3-Yr Waterfall'!D64",
+      "orig_is_formula": true,
+      "rev_is_formula": true
+    },
+    {
+      "sheet": "Cash Flow",
+      "cell": "Q46",
+      "orig_value": "=(Q$45+Q$30)/('Development Summary'!$I$36-'Construction Pricing'!$H$27)",
+      "rev_value": 0.0757556875351677,
+      "orig_is_formula": true,
+      "rev_is_formula": false
+    },
+    {
+      "sheet": "Assumptions",
+      "cell": "I43",
+      "orig_value": "=+'Building Program'!F31",
+      "rev_value": 1824,
+      "orig_is_formula": true,
+      "rev_is_formula": false
+    },
+    {
+      "sheet": "Assumptions",
+      "cell": "X22",
+      "orig_value": "=ROUND('Building Program'!M27,0)",
+      "rev_value": 629,
+      "orig_is_formula": true,
+      "rev_is_formula": false
+    },
+    {
+      "sheet": "Assumptions",
+      "cell": "D21",
+      "orig_value": "=+$X$26",
+      "rev_value": "=+$X$26",
+      "orig_is_formula": true,
+      "rev_is_formula": true
+    },
+    {
+      "sheet": "Development",
+      "cell": "H11",
+      "orig_value": "=+'Construction Pricing'!C16",
+      "rev_value": 502832,
+      "orig_is_formula": true,
+      "rev_is_formula": false
+    },
+    {
+      "sheet": "Development",
+      "cell": "H78",
+      "orig_value": "='Construction Pricing'!I26",
+      "rev_value": 3680270,
+      "orig_is_formula": true,
+      "rev_is_formula": false
+    },
+    {
+      "sheet": "Sale Proceeds",
+      "cell": "B75",
+      "orig_value": "Sale Analysis with Tax Reassessment",
+      "rev_value": null,
+      "orig_is_formula": false,
+      "rev_is_formula": false
+    },
+    {
+      "sheet": "Returns Exhibit",
+      "cell": "J3",
+      "orig_value": "Return Summary with Tax Reassessment",
+      "rev_value": null,
+      "orig_is_formula": false,
+      "rev_is_formula": false
+    }
+  ],
+  "sheet_change_counts": {
+    "1-Yr Waterfall": {
+      "formula_changes": 3,
+      "literal_changes": 1
+    },
+    "3-Yr Waterfall": {
+      "formula_changes": 3,
+      "literal_changes": 1
+    },
+    "4-Yr Waterfall": {
+      "formula_changes": 3,
+      "literal_changes": 1
+    },
+    "Assumptions": {
+      "formula_changes": 2,
+      "literal_changes": 12
+    },
+    "Cash Flow": {
+      "formula_changes": 16,
+      "literal_changes": 6
+    },
+    "Development": {
+      "formula_changes": 28,
+      "literal_changes": 6
+    },
+    "Executive Summary": {
+      "formula_changes": 52,
+      "literal_changes": 21
+    },
+    "Returns Exhibit": {
+      "formula_changes": 42,
+      "literal_changes": 37
+    },
+    "Sale Proceeds": {
+      "formula_changes": 62,
+      "literal_changes": 32
+    }
+  }
+}

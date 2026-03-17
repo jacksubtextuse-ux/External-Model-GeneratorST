@@ -1,0 +1,350 @@
+@import url("https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&display=swap");
+
+:root {
+  --slate-gray: #2b2825;
+  --everest-green: #16352e;
+  --birch: #a95818;
+  --brown: #512213;
+  --beige: #f7f1e3;
+  --lime-green: #c1d100;
+
+  --bg: var(--slate-gray);
+  --panel: #221f1c;
+  --ink: var(--beige);
+  --muted: #d9cfbe;
+  --accent: var(--lime-green);
+  --line: #3a352f;
+  --chip: #2d2925;
+  --error-bg: #3b2422;
+  --error-line: #9a5f57;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Source Sans 3", "Segoe UI", Calibri, sans-serif;
+  background:
+    radial-gradient(1200px 460px at 100% -90px, #35302b 0%, rgba(53, 48, 43, 0) 58%),
+    linear-gradient(180deg, #2a2623 0%, var(--bg) 100%);
+}
+
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 20px 40px;
+}
+
+.brand { margin-bottom: 18px; }
+
+.logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.logo-img {
+  display: block;
+  width: 460px;
+  max-width: 84vw;
+  height: auto;
+}
+
+.logo-fallback {
+  display: none;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--accent);
+  text-transform: lowercase;
+}
+
+.logo-rule {
+  margin-top: 8px;
+  width: min(460px, 84vw);
+  border-top: 5px solid var(--accent);
+}
+
+.brand h1 {
+  margin: 10px 0 0;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 1.55rem;
+  color: var(--accent);
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 1rem;
+  max-width: 680px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 14px 0;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+}
+
+.form-card { display: grid; gap: 10px; }
+
+label {
+  font-weight: 600;
+  color: var(--beige);
+}
+
+input[type="file"],
+input[type="text"],
+input[type="password"],
+select {
+  border: 1px solid #4a443d;
+  border-radius: 8px;
+  background: #2a2622;
+  color: var(--ink);
+  padding: 10px 12px;
+  font: inherit;
+}
+
+button {
+  margin-top: 6px;
+  width: fit-content;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, #d4df3f 0%, var(--accent) 100%);
+  color: var(--everest-green);
+  font: 700 0.95rem/1 "Source Sans 3", sans-serif;
+  cursor: pointer;
+}
+
+button:hover { filter: brightness(1.05); }
+
+h2, h3 {
+  font-family: "Libre Baskerville", Georgia, serif;
+  color: var(--accent);
+}
+
+h2 { margin: 0 0 12px; font-size: 1.2rem; }
+h3 { margin: 16px 0 8px; font-size: 1rem; }
+
+.meta-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.meta-item {
+  background: var(--chip);
+  border: 1px solid #453f37;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.meta-item.full { grid-column: 1 / -1; }
+
+.kpi-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 6px;
+}
+
+.kpi {
+  background: var(--chip);
+  border: 1px solid #453f37;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  background: #2c2823;
+  border: 1px solid #4a433b;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+th, td {
+  border: 1px solid #4a433b;
+  padding: 7px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #322d27;
+  color: var(--beige);
+}
+
+.error {
+  border-color: var(--error-line);
+  background: var(--error-bg);
+}
+
+.error h2 { color: #ffcdc3; }
+
+code {
+  background: #312c26;
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+@media (max-width: 720px) {
+  .wrap { padding: 18px 12px 28px; }
+  .logo-img { width: 300px; }
+  .brand h1 { font-size: 1.2rem; }
+  .meta-grid,
+  .kpi-grid { grid-template-columns: 1fr; }
+}
+
+
+.button-link {
+  display: inline-block;
+  text-decoration: none;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, #d4df3f 0%, var(--accent) 100%);
+  color: var(--everest-green);
+  font: 700 0.95rem/1 "Source Sans 3", sans-serif;
+}
+
+.button-link:hover {
+  filter: brightness(1.05);
+}
+
+
+.progress-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 11, 10, 0.75);
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+}
+
+.progress-overlay.active {
+  display: flex;
+}
+
+.progress-card {
+  width: min(460px, 92vw);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.4);
+}
+
+.progress-card h2 {
+  margin: 0 0 8px;
+}
+
+.progress-card p {
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+
+.progress-track {
+  height: 12px;
+  width: 100%;
+  background: #2d2925;
+  border: 1px solid #4a433b;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 5%;
+  background: linear-gradient(90deg, #d4df3f 0%, var(--accent) 100%);
+  transition: width 0.3s ease;
+}
+
+.progress-percent {
+  margin-top: 10px;
+  font-weight: 700;
+  color: var(--beige);
+}
+
+button:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+
+.button-link.secondary {
+  margin-left: 8px;
+  background: #3a352f;
+  color: var(--beige);
+  border: 1px solid #585046;
+}
+
+.button-link.secondary:hover {
+  filter: brightness(1.08);
+}
+
+
+.brand-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.logout-form {
+  margin: 0;
+}
+
+.logout-btn {
+  margin-top: 0;
+  background: #3a352f;
+  color: var(--beige);
+  border: 1px solid #585046;
+}
+
+.logout-btn:hover {
+  filter: brightness(1.08);
+}
+
+.auth-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.auth-card {
+  width: min(440px, 94vw);
+}
+
+.auth-form {
+  display: grid;
+  gap: 10px;
+}
+
+.auth-note {
+  color: var(--muted);
+  margin: 8px 0 2px;
+}

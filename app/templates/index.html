@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MrClean's External Model Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="brand">
+      <div class="brand-top">
+        <div class="logo-wrap">
+          <img class="logo-img" src="{{ url_for('static', filename='subtext-logo.png') }}" alt="Subtext" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+          <div class="logo-fallback">subtext</div>
+        </div>
+        <form method="post" action="{{ url_for('logout') }}" class="logout-form">
+          <button type="submit" class="logout-btn">Log Out</button>
+        </form>
+      </div>
+      <div class="logo-rule"></div>
+      <h1>MrClean's External Model Generator</h1>
+      <p class="subtitle">Upload one raw <code>.xlsm</code> or <code>.xlsx</code> file and run the workflow.</p>
+    </header>
+
+    <form id="run-form" method="post" enctype="multipart/form-data" class="card form-card">
+      <label for="workbook">Workbook</label>
+      <input id="workbook" type="file" name="workbook" accept=".xlsm,.xlsx" required />
+
+      <label for="project_type">Project Type</label>
+      <select id="project_type" name="project_type">
+        <option value="VERVE" selected>VERVE</option>
+        <option value="EVER">EVER</option>
+        <option value="LOCAL">LOCAL</option>
+      </select>
+
+      <label for="market">Market</label>
+      <input id="market" type="text" name="market" placeholder="e.g. GAINESVILLE" required />
+
+      <label for="tax_abatement">Tax Abatement</label>
+      <select id="tax_abatement" name="tax_abatement">
+        <option value="yes">Yes</option>
+        <option value="no" selected>No</option>
+      </select>
+
+      <label for="option">Workflow Option</label>
+      <select id="option" name="option">
+        <option value="base">Base</option>
+        <option value="front-range">Front Range</option>
+        <option value="lp">LP</option>
+        <option value="lender">Lender</option>
+      </select>
+
+      <button id="run-btn" type="submit">Run Workflow</button>
+    </form>
+
+    {% if error %}
+      <section class="card error">
+        <h2>Error</h2>
+        <pre>{{ error }}</pre>
+      </section>
+    {% endif %}
+
+    {% if result %}
+      <section class="card">
+        <h2>Run {{ result.run_id }}</h2>
+        <div class="meta-grid">
+          <div class="meta-item"><strong>Option:</strong> <code>{{ result.option }}</code></div>
+          <div class="meta-item"><strong>Project Type:</strong> <code>{{ result.project_type }}</code></div>
+          <div class="meta-item"><strong>Market:</strong> <code>{{ result.market }}</code></div>
+          <div class="meta-item"><strong>Tax Abatement:</strong> <code>{{ result.tax_abatement }}</code></div>
+          <div class="meta-item"><strong>Validation:</strong> <code>{{ result.validation.valid }}</code></div>
+          <div class="meta-item full"><strong>Input:</strong> <code>{{ result.input_filename }}</code></div>
+          <div class="meta-item full"><strong>Output:</strong> <code>{{ result.output_filename }}</code></div>
+          <div class="meta-item full">
+            <a class="button-link" href="{{ url_for('download_output', run_id=result.run_id, filename=result.output_filename) }}">Download Finished Workbook</a>
+            {% if result.diagnostics_filename %}
+              <a class="button-link secondary" href="{{ url_for('download_diagnostics', run_id=result.run_id, filename=result.diagnostics_filename) }}">Download Diagnostics JSON</a>
+            {% endif %}
+          </div>
+        </div>
+        {% if result.validation.errors %}
+          <h3>Validation Errors</h3>
+          <ul>
+            {% for e in result.validation.errors %}
+              <li><code>{{ e }}</code></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </section>
+
+
+      <section class="card">
+        <h2>Run Diagnostics</h2>
+        <div class="kpi-grid">
+          <div class="kpi"><strong>Validation errors:</strong> {{ result.diagnostics.validation_error_count }}</div>
+          <div class="kpi"><strong>Flagged log lines:</strong> {{ result.diagnostics.flagged_log_count }}</div>
+          <div class="kpi"><strong>Expected deletions still present:</strong> {{ result.diagnostics.expected_targets_remaining }}</div>
+        </div>
+
+        {% if result.diagnostics.hints %}
+          <h3>Triage Hints</h3>
+          <ul>
+            {% for h in result.diagnostics.hints %}
+              <li>{{ h }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if result.diagnostics.validation_errors %}
+          <h3>Validation Failures</h3>
+          <ul>
+            {% for e in result.diagnostics.validation_errors %}
+              <li><code>{{ e }}</code></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if result.diagnostics.flagged_log_lines %}
+          <h3>Flagged Execution Lines</h3>
+          <ul>
+            {% for line in result.diagnostics.flagged_log_lines %}
+              <li><code>{{ line }}</code></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </section>
+
+      <section class="card">
+        <h2>Before vs After Report</h2>
+
+        <h3>Sheet Changes</h3>
+        <div class="kpi-grid">
+          <div class="kpi"><strong>Removed:</strong> {{ result.report.sheet_diff.removed|length }}</div>
+          <div class="kpi"><strong>Added:</strong> {{ result.report.sheet_diff.added|length }}</div>
+          <div class="kpi"><strong>Expected deletions still present:</strong> {{ result.report.sheet_diff.expected_removed_still_present|length }}</div>
+          <div class="kpi"><strong>Formula changes:</strong> {{ result.report.changes.formula_changes }}</div>
+          <div class="kpi"><strong>Literal changes:</strong> {{ result.report.changes.literal_changes }}</div>
+        </div>
+
+        {% if result.report.sheet_diff.removed %}
+          <h3>Removed Sheets</h3>
+          <ul>
+            {% for s in result.report.sheet_diff.removed %}
+              <li>{{ s }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if result.report.sheet_diff.added %}
+          <h3>Added Sheets</h3>
+          <ul>
+            {% for s in result.report.sheet_diff.added %}
+              <li>{{ s }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if result.report.sheet_diff.expected_removed_still_present %}
+          <h3>Unexpected Remaining Deletion Targets</h3>
+          <ul>
+            {% for s in result.report.sheet_diff.expected_removed_still_present %}
+              <li>{{ s }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <h3>Spot Checks</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Cell</th>
+              <th>Before</th>
+              <th>After</th>
+              <th>Formula Transition</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in result.report.spot_checks %}
+              <tr>
+                <td><code>{{ row.cell }}</code></td>
+                <td><code>{{ row.before }}</code></td>
+                <td><code>{{ row.after }}</code></td>
+                <td><code>{{ row.before_is_formula }} ? {{ row.after_is_formula }}</code></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>Execution Log</h2>
+        <pre>{% for line in result.log %}{{ line }}
+{% endfor %}</pre>
+      </section>
+    {% endif %}
+
+
+    <div id="progress-overlay" class="progress-overlay" aria-hidden="true">
+      <div class="progress-card" role="status" aria-live="polite">
+        <h2>Running Workflow</h2>
+        <p id="progress-text">Preparing workbook...</p>
+        <div class="progress-track">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        <p id="progress-percent" class="progress-percent">5%</p>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    (() => {
+      const form = document.getElementById('run-form');
+      const overlay = document.getElementById('progress-overlay');
+      const bar = document.getElementById('progress-bar');
+      const pct = document.getElementById('progress-percent');
+      const txt = document.getElementById('progress-text');
+      const btn = document.getElementById('run-btn');
+      if (!form || !overlay || !bar || !pct || !txt || !btn) return;
+
+      const messages = [
+        'Preparing workbook...',
+        'Boosting Proforma Returns...',
+        'Hard Coding UROC...',
+        'Lowering Costs...',
+        'Reducing Inflation...',
+        'Boosting Rents...',
+        'Running cleanup steps...',
+        'Applying workflow rules...',
+        'Finalizing output file...'
+      ];
+
+      form.addEventListener('submit', () => {
+        overlay.classList.add('active');
+        overlay.setAttribute('aria-hidden', 'false');
+        btn.disabled = true;
+        btn.textContent = 'Running...';
+
+        const startPct = 5;
+        const endPct = 90;
+        const rampMs = 15 * 60 * 1000; // 15 minutes to reach 90%
+        const startAt = Date.now();
+
+        let progress = startPct;
+        let msgIdx = 0;
+        txt.textContent = messages[msgIdx];
+        bar.style.width = progress + '%';
+        pct.textContent = Math.round(progress) + '%';
+
+        const timer = setInterval(() => {
+          const elapsed = Date.now() - startAt;
+          const ratio = Math.min(elapsed / rampMs, 1);
+          progress = startPct + (endPct - startPct) * ratio;
+          bar.style.width = progress + '%';
+          pct.textContent = Math.round(progress) + '%';
+        }, 1000);
+
+        const msgTimer = setInterval(() => {
+          msgIdx = (msgIdx + 1) % messages.length;
+          txt.textContent = messages[msgIdx];
+        }, 8000);
+
+        window.addEventListener('pageshow', () => {
+          clearInterval(timer);
+          clearInterval(msgTimer);
+        }, { once: true });
+      });
+    })();
+  </script>
+
+</body>
+</html>
