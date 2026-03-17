@@ -168,16 +168,36 @@ class VerveWorkflowRunner:
         self.log.add(f"Q46 integrity check passed: baseline={b} final={f}")
 
     def _parse_city_from_e6(self) -> tuple[str, str]:
-        v = self._value("Executive Summary", "E6")
-        if not isinstance(v, str) or "," not in v:
-            raise WorkflowError("Executive Summary!E6 missing parseable address")
-        parts = [p.strip() for p in v.split(",")]
-        if len(parts) < 2:
-            raise WorkflowError("Executive Summary!E6 address parse failed")
-        city_spaced = parts[1]
-        city_compact = city_spaced.replace(" ", "")
-        return city_compact, city_spaced
+        market_env = os.environ.get("VERVE_MARKET", "").strip()
+        if market_env:
+            city_spaced = re.sub(r"[_\-]+", " ", market_env)
+            city_spaced = re.sub(r"\s+", " ", city_spaced).strip()
+            city_compact = re.sub(r"[^A-Za-z0-9]", "", city_spaced)
+            if city_compact:
+                self.log.add(f"Step 1 naming source: using market input '{city_spaced}'")
+                return city_compact, city_spaced
 
+        v = self._value("Executive Summary", "E6")
+        if isinstance(v, str) and "," in v:
+            parts = [p.strip() for p in v.split(",")]
+            if len(parts) >= 2 and parts[1]:
+                city_spaced = parts[1]
+                city_compact = re.sub(r"[^A-Za-z0-9]", "", city_spaced)
+                if city_compact:
+                    self.log.add("Step 1 naming source: parsed Executive Summary!E6")
+                    return city_compact, city_spaced
+
+        e5 = self._value("Executive Summary", "E5")
+        if isinstance(e5, str) and e5.strip():
+            candidate = re.sub(r"^(VERVE|EVER|LOCAL)\s+", "", e5.strip(), flags=re.IGNORECASE)
+            candidate = re.sub(r"\s+", " ", candidate).strip()
+            city_compact = re.sub(r"[^A-Za-z0-9]", "", candidate)
+            if city_compact:
+                self.log.add("Step 1 naming source: fallback from Executive Summary!E5")
+                return city_compact, candidate
+
+        self.log.add("Step 1 naming source fallback: using MARKET")
+        return "MARKET", "MARKET"
 
     def _tax_abatement_pref(self) -> str | None:
         raw = os.environ.get("VERVE_TAX_ABATEMENT", "").strip().lower()
