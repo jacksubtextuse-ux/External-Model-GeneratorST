@@ -1,0 +1,64 @@
+{
+  "before": "C:\\Users\\JackBranding\\OneDrive - Subtext\\Desktop\\Codex\\workflows\\verve-proforma-cleaner\\variants\\front-range\\samples\\base-before.xlsx",
+  "after": "C:\\Users\\JackBranding\\OneDrive - Subtext\\Desktop\\Codex\\workflows\\verve-proforma-cleaner\\variants\\front-range\\samples\\front-range-after.xlsm",
+  "blocks": {
+    "1-Yr Waterfall": {
+      "gp_fees_row": 30,
+      "gp_fees_range": "L30:R33",
+      "gp_return_row": 26,
+      "gp_return_range": "S26:T34"
+    },
+    "3-Yr Waterfall": {
+      "gp_fees_row": 28,
+      "gp_fees_range": "L28:R31",
+      "gp_return_row": 26,
+      "gp_return_range": "S26:T35"
+    },
+    "4-Yr Waterfall": {
+      "gp_fees_row": 28,
+      "gp_fees_range": "L28:R31",
+      "gp_return_row": 26,
+      "gp_return_range": "S26:T35"
+    }
+  },
+  "removal_checks": {
+    "1-Yr Waterfall": {
+      "gp_fees_removed": true,
+      "gp_return_removed": true,
+      "gp_fees_row_after": null,
+      "gp_return_row_after": null
+    },
+    "3-Yr Waterfall": {
+      "gp_fees_removed": true,
+      "gp_return_removed": true,
+      "gp_fees_row_after": null,
+      "gp_return_row_after": null
+    },
+    "4-Yr Waterfall": {
+      "gp_fees_removed": true,
+      "gp_return_removed": true,
+      "gp_fees_row_after": null,
+      "gp_return_row_after": null
+    }
+  },
+  "post_ref_checks": {
+    "1-Yr Waterfall": {
+      "tracked_block_cell_count": 46,
+      "remaining_external_refs_to_removed_blocks": 0,
+      "sample_refs": []
+    },
+    "3-Yr Waterfall": {
+      "tracked_block_cell_count": 48,
+      "remaining_external_refs_to_removed_blocks": 0,
+      "sample_refs": []
+    },
+    "4-Yr Waterfall": {
+      "tracked_block_cell_count": 48,
+      "remaining_external_refs_to_removed_blocks": 0,
+      "sample_refs": []
+    }
+  },
+  "notes": [
+    "Font-color normalization is validated functionally (spec behavior) but exact hex counting is unreliable in openpyxl because theme/indexed colors are not always materialized as RGB."
+  ]
+}

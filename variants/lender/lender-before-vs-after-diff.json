@@ -1,0 +1,42 @@
+{
+  "before_file": "C:/Users/JackBranding/OneDrive - Subtext/Desktop/New folder/Instruction Sets/Lender/Lender VERVE_Chapel Hill_20260304 JB Review Before.xlsm",
+  "after_file": "C:/Users/JackBranding/OneDrive - Subtext/Desktop/New folder/Instruction Sets/Lender/Lender VERVE_Chapel Hill_20260304 JB Review After.xlsm",
+  "sheet_diff": {
+    "removed": [
+      "1-Yr Sale",
+      "3-Yr Sale",
+      "4-Yr Sale",
+      "Claude Log",
+      "Development",
+      "Executive Summary",
+      "Sale Proceeds"
+    ],
+    "added": []
+  },
+  "keepers_after": ["Development Summary", "Cash Flow", "Assumptions"],
+  "only_keepers_after": true,
+  "formula_counts_after": {
+    "Development Summary": 0,
+    "Cash Flow": 0,
+    "Assumptions": 0
+  },
+  "refs_to_deleted_after": {},
+  "cashflow_checks_after": {
+    "commercial_parking_present": false,
+    "ground_lease_row": 27,
+    "ground_lease_f_value": 235000,
+    "tax_abatement_present": false,
+    "noi_less_reserves_row": 43,
+    "nonempty_cells_below_noi_in_sample_window": 0
+  },
+  "assumptions_checks_after": {
+    "assumptions_label_present": false,
+    "current_year_per_bed_input_present": false,
+    "current_year_rent_psf_present": false,
+    "current_rent_yr_present": false,
+    "total_sf_hits": [[5, 19], [41, 9]],
+    "max_row": 317,
+    "max_column": 37
+  },
+  "conclusion": "Before/after behavior matches the reconciled Set 4 lender instruction flow."
+}

@@ -1,0 +1,136 @@
+{
+  "before": "C:\\Users\\JackBranding\\OneDrive - Subtext\\Desktop\\Codex\\workflows\\verve-proforma-cleaner\\variants\\front-range\\samples\\base-before.xlsx",
+  "after": "C:\\Users\\JackBranding\\OneDrive - Subtext\\Desktop\\Codex\\workflows\\verve-proforma-cleaner\\variants\\front-range\\samples\\front-range-after.xlsm",
+  "sheet_presence": {
+    "1-Yr Waterfall": {
+      "before": true,
+      "after": true
+    },
+    "3-Yr Waterfall": {
+      "before": true,
+      "after": true
+    },
+    "4-Yr Waterfall": {
+      "before": true,
+      "after": true
+    }
+  },
+  "step1_nonwhite_to_black": {
+    "1-Yr Waterfall": {
+      "changed_to_black_count": 15,
+      "white_preserved_count": 0,
+      "nonwhite_nonblack_remaining": 10280
+    },
+    "3-Yr Waterfall": {
+      "changed_to_black_count": 15,
+      "white_preserved_count": 0,
+      "nonwhite_nonblack_remaining": 10416
+    },
+    "4-Yr Waterfall": {
+      "changed_to_black_count": 15,
+      "white_preserved_count": 0,
+      "nonwhite_nonblack_remaining": 10279
+    }
+  },
+  "step2_gp_fees_block": {
+    "1-Yr Waterfall": {
+      "gp_fees_label_row_after": null,
+      "status": "removed"
+    },
+    "3-Yr Waterfall": {
+      "gp_fees_label_row_after": null,
+      "status": "removed"
+    },
+    "4-Yr Waterfall": {
+      "gp_fees_label_row_after": null,
+      "status": "removed"
+    }
+  },
+  "step3_4_5_gp_return_block": {
+    "1-Yr Waterfall": {
+      "gp_return_label_row_after": null,
+      "status": "removed"
+    },
+    "3-Yr Waterfall": {
+      "gp_return_label_row_after": null,
+      "status": "removed"
+    },
+    "4-Yr Waterfall": {
+      "gp_return_label_row_after": null,
+      "status": "removed"
+    }
+  },
+  "formula_ref_scan_after": {
+    "1-Yr Waterfall": {
+      "possible_block_refs_count": 13,
+      "sample": [
+        "Executive Summary!J14",
+        "Returns Exhibit!D9",
+        "Returns Exhibit!E9",
+        "Returns Exhibit!F9",
+        "Returns Exhibit!G9",
+        "Returns Exhibit!D11",
+        "Returns Exhibit!E11",
+        "Returns Exhibit!F11",
+        "Returns Exhibit!G11",
+        "Returns Exhibit!D13",
+        "Returns Exhibit!E13",
+        "Returns Exhibit!F13",
+        "Returns Exhibit!G13"
+      ]
+    },
+    "3-Yr Waterfall": {
+      "possible_block_refs_count": 41,
+      "sample": [
+        "Executive Summary!K14",
+        "Development!H220",
+        "FR Waterfall Analysis!H25",
+        "FR Waterfall Analysis!I25",
+        "FR Waterfall Analysis!J25",
+        "FR Waterfall Analysis!K25",
+        "FR Waterfall Analysis!L25",
+        "FR Waterfall Analysis!M25",
+        "FR Waterfall Analysis!N25",
+        "FR Waterfall Analysis!O25",
+        "FR Waterfall Analysis!P25",
+        "FR Waterfall Analysis!H26",
+        "FR Waterfall Analysis!I26",
+        "FR Waterfall Analysis!J26",
+        "FR Waterfall Analysis!K26",
+        "FR Waterfall Analysis!L26",
+        "FR Waterfall Analysis!M26",
+        "FR Waterfall Analysis!N26",
+        "FR Waterfall Analysis!O26",
+        "FR Waterfall Analysis!P26",
+        "FR Waterfall Analysis!H27",
+        "FR Waterfall Analysis!I27",
+        "FR Waterfall Analysis!J27",
+        "FR Waterfall Analysis!K27",
+        "FR Waterfall Analysis!L27",
+        "FR Waterfall Analysis!M27",
+        "FR Waterfall Analysis!N27",
+        "FR Waterfall Analysis!O27",
+        "FR Waterfall Analysis!P27",
+        "Returns Exhibit!D21"
+      ]
+    },
+    "4-Yr Waterfall": {
+      "possible_block_refs_count": 13,
+      "sample": [
+        "Executive Summary!L14",
+        "Returns Exhibit!D33",
+        "Returns Exhibit!E33",
+        "Returns Exhibit!F33",
+        "Returns Exhibit!G33",
+        "Returns Exhibit!D35",
+        "Returns Exhibit!E35",
+        "Returns Exhibit!F35",
+        "Returns Exhibit!G35",
+        "Returns Exhibit!D37",
+        "Returns Exhibit!E37",
+        "Returns Exhibit!F37",
+        "Returns Exhibit!G37"
+      ]
+    }
+  }
+}

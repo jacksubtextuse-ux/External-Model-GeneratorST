@@ -1,0 +1,43 @@
+{
+  "workflow": "VERVE Proforma Cleaner LP",
+  "version": "1.0",
+  "date": "2026-03-13",
+  "expected_removed_sheets": [
+    "Building Program",
+    "Construction Pricing",
+    "3-Yr Co-GP Waterfall",
+    "Reassessed 1-Yr Waterfall",
+    "Reassessed 3-Yr Waterfall",
+    "Reassessed 4-Yr Waterfall",
+    "Historic OpEx Comparison",
+    "Change Log",
+    "TermSheet",
+    "TermSheet-Ignore",
+    "Proforma Comparison",
+    "FR Waterfall Analysis",
+    "Returns Exhibit",
+    "1-Yr Waterfall",
+    "3-Yr Waterfall",
+    "4-Yr Waterfall"
+  ],
+  "must_have_zero_formula_refs_to_deleted_tabs": true,
+  "spot_assertions": [
+    { "cell": "Executive Summary!J15", "expected_formula": false },
+    { "cell": "Executive Summary!K15", "expected_formula": false },
+    { "cell": "Executive Summary!L15", "expected_formula": false },
+    { "cell": "Cash Flow!Q46", "expected_formula": true },
+    { "cell": "Assumptions!D21", "expected_formula": false },
+    { "cell": "Sale Proceeds!B75", "expected_blank": true },
+    { "cell": "Executive Summary!J16", "expected_formula": true },
+    { "cell": "Executive Summary!K16", "expected_formula": true },
+    { "cell": "Executive Summary!L16", "expected_formula": true },
+    { "cell": "1-Yr Sale!Q22", "expected_formula": true },
+    { "cell": "3-Yr Sale!Q22", "expected_formula": true },
+    { "cell": "4-Yr Sale!Q22", "expected_formula": true }
+  ],
+  "validation_mode": {
+    "strict_on_deletions_and_deleted_refs": true,
+    "strict_on_spot_assertions": true,
+    "strict_on_step40_hardcode": true
+  }
+}

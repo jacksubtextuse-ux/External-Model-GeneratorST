@@ -1,0 +1,77 @@
+{
+    "workflow":  "VERVE Proforma Cleaner",
+    "version":  "1.1",
+    "date":  "2026-03-06",
+    "baseline_files":  {
+                           "original":  "C:/Users/JackBranding/OneDrive - Subtext/Desktop/Codex/workflows/verve-proforma-cleaner/samples/original.xlsm",
+                           "reviewed":  "C:/Users/JackBranding/OneDrive - Subtext/Desktop/Codex/workflows/verve-proforma-cleaner/samples/reviewed.xlsm"
+                       },
+    "expected_removed_sheets":  [
+                                    "Building Program",
+                                    "Construction Pricing",
+                                    "3-Yr Co-GP Waterfall",
+                                    "Reassessed 1-Yr Waterfall",
+                                    "Reassessed 3-Yr Waterfall",
+                                    "Reassessed 4-Yr Waterfall",
+                                    "Historic OpEx Comparison",
+                                    "Change Log",
+                                    "TermSheet",
+                                    "TermSheet-Ignore",
+                                    "Proforma Comparison"
+                                ],
+    "expected_added_sheets":  [
+
+                              ],
+    "must_have_zero_formula_refs_to_deleted_tabs":  true,
+    "spot_assertions":  [
+                            {
+                                "cell":  "Executive Summary!J15",
+                                "expected_formula":  false
+                            },
+                            {
+                                "cell":  "Executive Summary!K15",
+                                "expected_formula":  false
+                            },
+                            {
+                                "cell":  "Executive Summary!L15",
+                                "expected_formula":  false
+                            },
+                            {
+                                "cell":  "Assumptions!I43",
+                                "expected_formula":  false
+                            },
+                            {
+                                "cell":  "Assumptions!X22",
+                                "expected_formula":  false
+                            },
+                            {
+                                "cell":  "Development!H11",
+                                "expected_formula":  false
+                            },
+                            {
+                                "cell":  "Development!H78",
+                                "expected_formula":  false
+                            },
+                            {
+                                "cell":  "Cash Flow!Q46",
+                                "expected_formula":  true
+                            },
+                            {
+                                "cell":  "Assumptions!D21",
+                                "expected_formula":  false
+                            },
+                            {
+                                "cell":  "Sale Proceeds!B75",
+                                "expected_blank":  true
+                            },
+                            {
+                                "cell":  "Returns Exhibit!J3",
+                                "expected_blank":  true
+                            }
+                        ],
+    "validation_mode":  {
+                            "strict_on_deletions_and_deleted_refs":  true,
+                            "strict_on_spot_assertions":  true,
+                            "strict_on_step40_hardcode":  true
+                        }
+}

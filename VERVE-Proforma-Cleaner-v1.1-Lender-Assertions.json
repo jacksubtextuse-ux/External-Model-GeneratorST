@@ -1,0 +1,29 @@
+{
+  "workflow": "VERVE Proforma Cleaner Lender",
+  "version": "1.0",
+  "date": "2026-03-13",
+  "expected_removed_sheets": [
+    "Executive Summary",
+    "Development",
+    "Sale Proceeds",
+    "1-Yr Sale",
+    "3-Yr Sale",
+    "4-Yr Sale",
+    "Claude Log"
+  ],
+  "must_have_zero_formula_refs_to_deleted_tabs": true,
+  "spot_assertions": [
+    { "cell": "Development Summary!A1", "expected_formula": false },
+    { "cell": "Cash Flow!A1", "expected_formula": false },
+    { "cell": "Assumptions!A1", "expected_formula": false },
+    { "cell": "Cash Flow!B27", "expected_formula": false },
+    { "cell": "Cash Flow!A43", "expected_formula": false },
+    { "cell": "Assumptions!C4", "expected_blank": true },
+    { "cell": "Assumptions!B49", "expected_blank": true }
+  ],
+  "validation_mode": {
+    "strict_on_deletions_and_deleted_refs": true,
+    "strict_on_spot_assertions": true,
+    "strict_on_step40_hardcode": false
+  }
+}
