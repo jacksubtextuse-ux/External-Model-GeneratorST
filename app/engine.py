@@ -79,6 +79,7 @@ class VerveWorkflowRunner:
         self._step_17_non_black_non_white_to_black_development()
         self._step_18_hardcode_development_external_refs()
         self._step_19_group_hide_development_unused_rows()
+        self._step_19b_clear_development_comments_description_values()
 
         self._step_20_group_hide_sale_proceeds_commercial()
         self._clear_to_white("Sale Proceeds", "B75:J112")
@@ -103,6 +104,8 @@ class VerveWorkflowRunner:
         ]:
             self._safe_delete_sheet(s)
 
+        self._step_36b_delete_user_requested_tabs()
+
         self._step_37_clear_development_range()
         self._step_38_clear_yellow_reference_cells()
         self._step_39_remove_non_approved_fill_colors_assumptions()
@@ -110,6 +113,8 @@ class VerveWorkflowRunner:
         self._step_40b_hardcode_residential_parking_rent_stall()
         self._step_41_copy_assumptions_range()
         self._step_42_clear_assumptions_range()
+        self._step_15b_clear_total_interim_income_adjacent()
+        self._step_42b_remove_waterfall_comments_notes()
 
         self._assert_q46_consistency_best_effort(baseline_q46)
         today = dt.datetime.now().strftime("%Y%m%d")
@@ -188,6 +193,76 @@ class VerveWorkflowRunner:
         raw = re.sub(r"_+", "_", raw).strip("_")
         return raw or "MARKET"
 
+    def _protected_sheet_names_for_user_delete(self) -> set[str]:
+        return {
+            "executive summary",
+            "development summary",
+            "cash flow",
+            "assumptions",
+            "development",
+            "sale proceeds",
+            "returns exhibit",
+            "1-yr waterfall",
+            "3-yr waterfall",
+            "4-yr waterfall",
+        }
+
+    def _additional_delete_tabs_from_env(self) -> list[str]:
+        raw = os.environ.get("VERVE_ADDITIONAL_DELETE_TABS", "").strip()
+        if not raw:
+            return []
+
+        names: list[str] = []
+        seen: set[str] = set()
+
+        parsed: Any = None
+        try:
+            import json
+
+            parsed = json.loads(raw)
+        except Exception:
+            parsed = None
+
+        if isinstance(parsed, list):
+            items = parsed
+        else:
+            items = re.split(r"[\n,]+", raw)
+
+        for item in items:
+            name = str(item or "").strip()
+            if not name:
+                continue
+            key = name.lower()
+            if key in seen:
+                continue
+            names.append(name)
+            seen.add(key)
+        return names
+
+    def _step_36b_delete_user_requested_tabs(self) -> None:
+        tabs = self._additional_delete_tabs_from_env()
+        if not tabs:
+            self.log.add("Step 36b: no user-requested additional tabs")
+            return
+
+        protected = self._protected_sheet_names_for_user_delete()
+        deleted: list[str] = []
+        skipped_protected: list[str] = []
+        for tab in tabs:
+            if tab.lower() in protected:
+                skipped_protected.append(tab)
+                self.log.add(f"Step 36b: skipped protected sheet '{tab}'")
+                continue
+            self._hardcode_refs_to_sheet(tab)
+            self._safe_delete_sheet(tab)
+            deleted.append(tab)
+
+        msg = f"Step 36b: processed {len(tabs)} user-requested tabs"
+        if deleted:
+            msg += f"; attempted delete/hardcode for: {', '.join(deleted)}"
+        if skipped_protected:
+            msg += f"; protected skips: {', '.join(skipped_protected)}"
+        self.log.add(msg)
     def _normalize_rgb(self, rgb: Any) -> str | None:
         if not rgb:
             return None
@@ -423,6 +498,12 @@ class VerveWorkflowRunner:
                     deleted += 1
         self.log.add(f"Step comments cleanup on {sheet}: removed {deleted} comments")
 
+    def _step_42b_remove_waterfall_comments_notes(self) -> None:
+        sheets = ["1-Yr Waterfall", "3-Yr Waterfall", "4-Yr Waterfall"]
+        for s in sheets:
+            self._step_12_remove_comments(s)
+        self.log.add("Step 42b: waterfall comments/notes cleanup complete")
+
     def _step_13_group_hide_assumptions_dash_rows(self) -> None:
         ws = self._sheet("Assumptions")
         vws = self._values_sheet("Assumptions")
@@ -501,6 +582,45 @@ class VerveWorkflowRunner:
             raise WorkflowError(f"Step 15 failed: remaining refs count {remaining}")
         self.log.add(f"Step 15: hardcoded {changed} Assumptions external refs")
 
+    def _step_15b_clear_total_interim_income_adjacent(self) -> None:
+        ws = self._sheet("Assumptions")
+        if not ws:
+            self.log.add("Step 15b skipped: missing Assumptions")
+            return
+
+        hits: list[tuple[int, int]] = []
+        max_row = ws.max_row
+        max_col = ws.max_column
+        for r in range(1, max_row):
+            for c in range(1, max_col + 1):
+                top = ws.cell(r, c).value
+                bottom = ws.cell(r + 1, c).value
+                if isinstance(top, str) and isinstance(bottom, str):
+                    if top.strip().upper() == "TOTAL" and bottom.strip().upper() == "INTERIM INCOME":
+                        hits.append((r, c))
+
+        if not hits:
+            self.log.add("Step 15b: condition not met")
+            return
+
+        start_cols = sorted({c + 1 for _, c in hits if c + 1 <= max_col})
+        if not start_cols:
+            self.log.add("Step 15b: condition found but no right-side columns to clear")
+            return
+
+        start_col = min(start_cols)
+        cleared = 0
+        for rr in range(1, max_row + 1):
+            for cc in range(start_col, max_col + 1):
+                cell = ws.cell(rr, cc)
+                cell.value = None
+                cell.border = copy(NO_BORDER)
+                cleared += 1
+
+        start_letter = get_column_letter(start_col)
+        end_letter = get_column_letter(max_col)
+        self.log.add(f"Step 15b: cleared {cleared} cells in right-side area -> {start_letter}1:{end_letter}{max_row}")
+
     def _step_17_non_black_non_white_to_black_development(self) -> None:
         ws = self._sheet("Development")
         if not ws:
@@ -539,6 +659,47 @@ class VerveWorkflowRunner:
                 self._set_row_group_hidden(ws, row)
                 grouped.append(row)
         self.log.add(f"Step 19: grouped {len(grouped)} Development rows")
+
+    def _step_19b_clear_development_comments_description_values(self) -> None:
+        ws = self._sheet("Development")
+        if not ws:
+            self.log.add("Step 19b skipped: missing Development")
+            return
+
+        max_row = ws.max_row
+        max_col = ws.max_column
+        hits: list[tuple[int, int]] = []
+        for r in range(1, max_row + 1):
+            for c in range(1, max_col + 1):
+                v = ws.cell(r, c).value
+                if isinstance(v, str) and v.strip().upper() == "COMMENTS / DESCRIPTION":
+                    hits.append((r, c))
+
+        if not hits:
+            self.log.add("Step 19b: condition not met")
+            return
+
+        headers_by_col: dict[int, list[int]] = {}
+        for r, c in hits:
+            headers_by_col.setdefault(c, []).append(r)
+
+        cleared = 0
+        for c, rows in headers_by_col.items():
+            rows_sorted = sorted(rows)
+            for i, hr in enumerate(rows_sorted):
+                next_header = rows_sorted[i + 1] if i + 1 < len(rows_sorted) else max_row + 1
+                for rr in range(hr + 1, next_header):
+                    cell = ws.cell(rr, c)
+                    v = cell.value
+                    if v is None:
+                        continue
+                    if isinstance(v, str) and v.strip().upper() == "COMMENTS / DESCRIPTION":
+                        continue
+                    cell.value = None
+                    cleared += 1
+
+        cols = ", ".join(sorted({get_column_letter(c) for _, c in hits}))
+        self.log.add(f"Step 19b: cleared {cleared} Development comment values in column(s) {cols}")
 
     def _step_20_group_hide_sale_proceeds_commercial(self) -> None:
         ws = self._sheet("Sale Proceeds")
@@ -735,15 +896,9 @@ class VerveWorkflowRunner:
                 for c in range(1, ws.max_column + 1):
                     cell = ws.cell(r, c)
                     if isinstance(cell.value, str) and cell.value.startswith("=") and needle in cell.value.lower():
-                        addr = f"{get_column_letter(c)}{r}"
-
-                        # Step 24 exception: preserve Cash Flow formulas Q46/Q51 while
+                        # Step 24 exception: preserve Cash Flow formulas while
                         # replacing only Construction Pricing references with constants.
-                        if (
-                            needle == "construction pricing"
-                            and ws.title.lower() == "cash flow"
-                            and addr in {"Q46", "Q51"}
-                        ):
+                        if needle == "construction pricing" and ws.title.lower() == "cash flow":
                             new_formula = self._replace_construction_pricing_refs_in_formula(cell.value)
                             cell.value = new_formula
                             changed += 1
@@ -767,6 +922,8 @@ class VerveWorkflowRunner:
         if self._sheet(sheet_name):
             raise WorkflowError(f"Failed to delete sheet '{sheet_name}'")
         self.log.add(f"Deleted sheet {sheet_name}")
+
+
 
 
 

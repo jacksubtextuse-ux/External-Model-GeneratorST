@@ -105,6 +105,7 @@ class VerveWorkflowRunnerCom:
                 self._step_17_non_black_non_white_to_black_development()
             self._step_18_hardcode_development_external_refs()
             self._step_19_group_hide_development_unused_rows()
+            self._step_19b_clear_development_comments_description_values()
 
             self._step_20_group_hide_sale_proceeds_commercial()
             self._clear_to_white("Sale Proceeds", "B75:J112")
@@ -130,6 +131,8 @@ class VerveWorkflowRunnerCom:
             ]:
                 self._safe_delete_sheet(s)
 
+            self._step_36b_delete_user_requested_tabs()
+
             self._clear_to_white("Development", "L21:O31")
             self._step_38_clear_yellow_reference_cells()
             if self.FAST_SKIP_COSMETIC_SCANS:
@@ -140,6 +143,8 @@ class VerveWorkflowRunnerCom:
             self._step_40b_hardcode_residential_parking_rent_stall()
             self._step_41_copy_assumptions_range()
             self._clear_to_white("Assumptions", "W4:AA44")
+            self._step_15b_clear_total_interim_income_adjacent()
+            self._step_42b_remove_waterfall_comments_notes()
 
             if self.option in {"front-range", "lp", "lender"}:
                 self._apply_front_range_variant()
@@ -326,6 +331,76 @@ class VerveWorkflowRunnerCom:
         raw = re.sub(r"_+", "_", raw).strip("_")
         return raw or "MARKET"
 
+    def _protected_sheet_names_for_user_delete(self) -> set[str]:
+        return {
+            "executive summary",
+            "development summary",
+            "cash flow",
+            "assumptions",
+            "development",
+            "sale proceeds",
+            "returns exhibit",
+            "1-yr waterfall",
+            "3-yr waterfall",
+            "4-yr waterfall",
+        }
+
+    def _additional_delete_tabs_from_env(self) -> list[str]:
+        raw = os.environ.get("VERVE_ADDITIONAL_DELETE_TABS", "").strip()
+        if not raw:
+            return []
+
+        names: list[str] = []
+        seen: set[str] = set()
+
+        parsed: Any = None
+        try:
+            import json
+
+            parsed = json.loads(raw)
+        except Exception:
+            parsed = None
+
+        if isinstance(parsed, list):
+            items = parsed
+        else:
+            items = re.split(r"[\n,]+", raw)
+
+        for item in items:
+            name = str(item or "").strip()
+            if not name:
+                continue
+            key = name.lower()
+            if key in seen:
+                continue
+            names.append(name)
+            seen.add(key)
+        return names
+
+    def _step_36b_delete_user_requested_tabs(self) -> None:
+        tabs = self._additional_delete_tabs_from_env()
+        if not tabs:
+            self.log.add("Step 36b: no user-requested additional tabs")
+            return
+
+        protected = self._protected_sheet_names_for_user_delete()
+        deleted: list[str] = []
+        skipped_protected: list[str] = []
+        for tab in tabs:
+            if tab.lower() in protected:
+                skipped_protected.append(tab)
+                self.log.add(f"Step 36b: skipped protected sheet '{tab}'")
+                continue
+            self._hardcode_refs_to_sheet(tab)
+            self._safe_delete_sheet(tab)
+            deleted.append(tab)
+
+        msg = f"Step 36b: processed {len(tabs)} user-requested tabs"
+        if deleted:
+            msg += f"; attempted delete/hardcode for: {', '.join(deleted)}"
+        if skipped_protected:
+            msg += f"; protected skips: {', '.join(skipped_protected)}"
+        self.log.add(msg)
     def _parse_city_from_e6(self) -> tuple[str, str]:
         ws = self._ws("Executive Summary")
         if ws is None:
@@ -545,6 +620,12 @@ class VerveWorkflowRunnerCom:
                 except Exception:
                     pass
         self.log.add(f"Step comments cleanup on {sheet_name}: removed {deleted} comments")
+    def _step_42b_remove_waterfall_comments_notes(self) -> None:
+        sheets = ["1-Yr Waterfall", "3-Yr Waterfall", "4-Yr Waterfall"]
+        for s in sheets:
+            self._step_12_remove_comments(s)
+        self.log.add("Step 42b: waterfall comments/notes cleanup complete")
+
     def _step_13_group_hide_assumptions_dash_rows(self) -> None:
         ws = self._ws("Assumptions")
         if ws is None:
@@ -641,6 +722,47 @@ class VerveWorkflowRunnerCom:
             raise WorkflowError(f"Step 15 failed: remaining refs count {remaining}")
         self.log.add(f"Step 15: hardcoded {changed} Assumptions external refs")
 
+    def _step_15b_clear_total_interim_income_adjacent(self) -> None:
+        ws = self._ws("Assumptions")
+        if ws is None:
+            self.log.add("Step 15b skipped: missing Assumptions")
+            return
+
+        scan_row, scan_col = self._scan_bounds(ws, "Assumptions")
+        hits: list[tuple[int, int]] = []
+        for r in range(1, scan_row):
+            for c in range(1, scan_col + 1):
+                top = ws.Cells(r, c).Value
+                bottom = ws.Cells(r + 1, c).Value
+                if isinstance(top, str) and isinstance(bottom, str):
+                    if top.strip().upper() == "TOTAL" and bottom.strip().upper() == "INTERIM INCOME":
+                        hits.append((r, c))
+
+        if not hits:
+            self.log.add("Step 15b: condition not met")
+            return
+
+        try:
+            ur = ws.UsedRange
+            max_row = int(ur.Row + ur.Rows.Count - 1)
+            max_col = int(ur.Column + ur.Columns.Count - 1)
+        except Exception:
+            max_row, max_col = scan_row, scan_col
+
+        start_cols = sorted({c + 1 for _, c in hits if c + 1 <= max_col})
+        if not start_cols:
+            self.log.add("Step 15b: condition found but no right-side columns to clear")
+            return
+
+        start_col = min(start_cols)
+        rng = ws.Range(f"{self._addr(1, start_col)}:{self._addr(max_row, max_col)}")
+        rng.ClearContents()
+        for idx in [7, 8, 9, 10, 11, 12]:
+            rng.Borders(idx).LineStyle = self.XL_NONE
+
+        cleared = max_row * (max_col - start_col + 1)
+        self.log.add(f"Step 15b: cleared {cleared} cells in right-side area -> {self._addr(1, start_col)}:{self._addr(max_row, max_col)}")
+
     def _step_17_non_black_non_white_to_black_development(self) -> None:
         ws = self._ws("Development")
         if ws is None:
@@ -680,6 +802,46 @@ class VerveWorkflowRunnerCom:
                 ws.Rows(row).Hidden = True
                 grouped += 1
         self.log.add(f"Step 19: grouped {grouped} Development rows")
+    def _step_19b_clear_development_comments_description_values(self) -> None:
+        ws = self._ws("Development")
+        if ws is None:
+            self.log.add("Step 19b skipped: missing Development")
+            return
+
+        max_row, max_col = self._scan_bounds(ws, "Development")
+        hits: list[tuple[int, int]] = []
+        for r in range(1, max_row + 1):
+            for c in range(1, max_col + 1):
+                v = ws.Cells(r, c).Value
+                if isinstance(v, str) and v.strip().upper() == "COMMENTS / DESCRIPTION":
+                    hits.append((r, c))
+
+        if not hits:
+            self.log.add("Step 19b: condition not met")
+            return
+
+        headers_by_col: dict[int, list[int]] = {}
+        for r, c in hits:
+            headers_by_col.setdefault(c, []).append(r)
+
+        cleared = 0
+        for c, rows in headers_by_col.items():
+            rows_sorted = sorted(rows)
+            for i, hr in enumerate(rows_sorted):
+                next_header = rows_sorted[i + 1] if i + 1 < len(rows_sorted) else max_row + 1
+                for rr in range(hr + 1, next_header):
+                    cell = ws.Cells(rr, c)
+                    v = cell.Value
+                    if v is None:
+                        continue
+                    if isinstance(v, str) and v.strip().upper() == "COMMENTS / DESCRIPTION":
+                        continue
+                    cell.Value = ""
+                    cleared += 1
+
+        cols = ", ".join(sorted({self._addr(1, c).rstrip('1') for _, c in hits}))
+        self.log.add(f"Step 19b: cleared {cleared} Development comment values in column(s) {cols}")
+
     def _step_20_group_hide_sale_proceeds_commercial(self) -> None:
         ws = self._ws("Sale Proceeds")
         if ws is None:
@@ -764,15 +926,10 @@ class VerveWorkflowRunnerCom:
                 continue
             for addr in self._find_formula_refs(ws, needle):
                 cell = ws.Range(addr)
-                norm_addr = str(addr).replace("$", "")
 
-                # Step 24 exception: preserve Cash Flow formulas Q46/Q51 while
+                # Step 24 exception: preserve Cash Flow formulas while
                 # replacing only Construction Pricing references with constants.
-                if (
-                    needle == "construction pricing"
-                    and ws.Name.lower() == "cash flow"
-                    and norm_addr in {"Q46", "Q51"}
-                ):
+                if needle == "construction pricing" and ws.Name.lower() == "cash flow":
                     f = cell.Formula
                     if isinstance(f, str) and f.lstrip().startswith("="):
                         cell.Formula = self._replace_construction_pricing_refs_in_formula_com(f.lstrip())
@@ -1126,7 +1283,7 @@ class VerveWorkflowRunnerCom:
         self._lp_step_5_link_em_to_leveraged_em(sheets)
         self._lp_step_6_clear_waterfall_terms_block(sheets)
         self._lp_step_7_move_cash_flow_summary_up(sheets)
-        self._lp_step_8_delete_empty_rows_29_45(sheets)
+        self._lp_step_8_delete_empty_rows_58_175(sheets)
         self._lp_step_9_clear_summary_distributions_to_340(sheets)
         self._lp_step_10_link_executive_summary_to_waterfalls()
         self._lp_step_11_rename_waterfall_tabs()
@@ -1298,7 +1455,7 @@ class VerveWorkflowRunnerCom:
             out.append(f"{sheet_name}:moved_B19:J39_to_B7")
         self.log.add("LP Step 7 move summary -> " + ", ".join(out))
 
-    def _lp_step_8_delete_empty_rows_29_45(self, sheets: list[str]) -> None:
+    def _lp_step_8_delete_empty_rows_58_175(self, sheets: list[str]) -> None:
         out = []
         for sheet_name in sheets:
             ws = self._ws(sheet_name)
@@ -1306,8 +1463,10 @@ class VerveWorkflowRunnerCom:
                 out.append(f"{sheet_name}:missing")
                 continue
             _, max_col = self._scan_bounds(ws, ws.Name)
-            rows_to_delete: list[int] = []
-            for row in range(29, 46):
+            end_col_addr = self._addr(1, max_col)
+            end_col = re.sub(r"\d+", "", end_col_addr)
+            rows_to_clear: list[int] = []
+            for row in range(58, 176):
                 empty = True
                 for col in range(1, max_col + 1):
                     v = ws.Cells(row, col).Value
@@ -1315,11 +1474,17 @@ class VerveWorkflowRunnerCom:
                         empty = False
                         break
                 if empty:
-                    rows_to_delete.append(row)
-            for row in reversed(rows_to_delete):
-                ws.Rows(row).Delete()
-            out.append(f"{sheet_name}:deleted_{len(rows_to_delete)}")
-        self.log.add("LP Step 8 delete empty rows -> " + ", ".join(out))
+                    rows_to_clear.append(row)
+
+            for row in rows_to_clear:
+                rng = ws.Range(f"A{row}:{end_col}{row}")
+                rng.ClearContents()
+                rng.Interior.Color = 16777215
+                for idx in [7, 8, 9, 10, 11, 12]:
+                    rng.Borders(idx).LineStyle = self.XL_NONE
+
+            out.append(f"{sheet_name}:cleared_{len(rows_to_clear)}")
+        self.log.add("LP Step 8 clear empty rows -> " + ", ".join(out))
 
     def _lp_step_9_clear_summary_distributions_to_340(self, sheets: list[str]) -> None:
         out = []
@@ -1328,22 +1493,47 @@ class VerveWorkflowRunnerCom:
             if ws is None:
                 out.append(f"{sheet_name}:missing")
                 continue
-            start_row = self._lp_find_exact_in_column(ws, "A", "SUMMARY DISTRIBUTIONS")
-            if start_row is None:
-                out.append(f"{sheet_name}:summary_distributions_not_found")
+
+            start_row = 75
+            keep_top = 358
+            keep_bottom = 361
+
+            try:
+                ur = ws.UsedRange
+                max_row = int(ur.Row + ur.Rows.Count - 1)
+                max_col = int(ur.Column + ur.Columns.Count - 1)
+            except Exception:
+                max_row, max_col = self._scan_bounds(ws, ws.Name)
+
+            if max_row < start_row:
+                out.append(f"{sheet_name}:no_rows_at_or_below_{start_row}")
                 continue
-            if start_row > 340:
-                out.append(f"{sheet_name}:start_row_gt_340")
-                continue
-            _, max_col = self._scan_bounds(ws, ws.Name)
-            end_col_addr = self._addr(1, max_col)
-            end_col = re.sub(r"\d+", "", end_col_addr)
-            rng = ws.Range(f"A{start_row}:{end_col}340")
-            rng.ClearContents()
-            rng.Interior.Color = 16777215
-            for idx in [7, 8, 9, 10, 11, 12]:
-                rng.Borders(idx).LineStyle = self.XL_NONE
-            out.append(f"{sheet_name}:A{start_row}:{end_col}340")
+
+            cleared_ranges: list[str] = []
+
+            top_end = min(max_row, keep_top - 1)
+            if top_end >= start_row:
+                rng1 = ws.Range(f"A{start_row}:{self._addr(top_end, max_col)}")
+                rng1.ClearContents()
+                rng1.Interior.Color = 16777215
+                for idx in [7, 8, 9, 10, 11, 12]:
+                    rng1.Borders(idx).LineStyle = self.XL_NONE
+                cleared_ranges.append(f"A{start_row}:{self._addr(top_end, max_col)}")
+
+            bottom_start = max(start_row, keep_bottom + 1)
+            if max_row >= bottom_start:
+                rng2 = ws.Range(f"A{bottom_start}:{self._addr(max_row, max_col)}")
+                rng2.ClearContents()
+                rng2.Interior.Color = 16777215
+                for idx in [7, 8, 9, 10, 11, 12]:
+                    rng2.Borders(idx).LineStyle = self.XL_NONE
+                cleared_ranges.append(f"A{bottom_start}:{self._addr(max_row, max_col)}")
+
+            if cleared_ranges:
+                out.append(f"{sheet_name}:{';'.join(cleared_ranges)}|kept_B358:C361")
+            else:
+                out.append(f"{sheet_name}:no_clear_ranges|kept_B358:C361")
+
         self.log.add("LP Step 9 clear summary distributions -> " + ", ".join(out))
 
     def _lp_step_10_link_executive_summary_to_waterfalls(self) -> None:
@@ -1708,3 +1898,4 @@ class VerveWorkflowRunnerCom:
         for idx in [7, 8, 9, 10, 11, 12]:
             rng.Borders(idx).LineStyle = self.XL_NONE
         self.log.add(f"Lender Step 9 cleared right of Total SF -> {self._addr(top_row, start_col)}:{self._addr(bottom_row, last_col)}")
+

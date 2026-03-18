@@ -348,3 +348,37 @@ button:disabled {
   color: var(--muted);
   margin: 8px 0 2px;
 }
+
+.additional-tabs-panel {
+  display: none;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.additional-tabs-panel.active {
+  display: grid;
+}
+
+.additional-tabs-list {
+  display: grid;
+  gap: 8px;
+}
+
+.sheet-input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.secondary-action,
+.remove-sheet-btn {
+  margin-top: 0;
+  background: #3a352f;
+  color: var(--beige);
+  border: 1px solid #585046;
+}
+
+.secondary-action:hover,
+.remove-sheet-btn:hover {
+  filter: brightness(1.08);
+}

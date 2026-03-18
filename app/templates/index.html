@@ -29,26 +29,48 @@
 
       <label for="project_type">Project Type</label>
       <select id="project_type" name="project_type">
-        <option value="VERVE" selected>VERVE</option>
-        <option value="EVER">EVER</option>
-        <option value="LOCAL">LOCAL</option>
+        <option value="VERVE" {% if form.project_type == 'VERVE' %}selected{% endif %}>VERVE</option>
+        <option value="EVER" {% if form.project_type == 'EVER' %}selected{% endif %}>EVER</option>
+        <option value="LOCAL" {% if form.project_type == 'LOCAL' %}selected{% endif %}>LOCAL</option>
       </select>
 
       <label for="market">Market</label>
-      <input id="market" type="text" name="market" placeholder="e.g. GAINESVILLE" required />
+      <input id="market" type="text" name="market" placeholder="e.g. GAINESVILLE" value="{{ form.market }}" required />
 
       <label for="tax_abatement">Tax Abatement</label>
       <select id="tax_abatement" name="tax_abatement">
-        <option value="yes">Yes</option>
-        <option value="no" selected>No</option>
+        <option value="yes" {% if form.tax_abatement == 'yes' %}selected{% endif %}>Yes</option>
+        <option value="no" {% if form.tax_abatement == 'no' %}selected{% endif %}>No</option>
       </select>
+
+      <label for="has_additional_tabs">Additional tabs added to template?</label>
+      <select id="has_additional_tabs" name="has_additional_tabs">
+        <option value="no" {% if form.has_additional_tabs != 'yes' %}selected{% endif %}>No</option>
+        <option value="yes" {% if form.has_additional_tabs == 'yes' %}selected{% endif %}>Yes</option>
+      </select>
+
+      <div id="additional-tabs-panel" class="additional-tabs-panel {% if form.has_additional_tabs == 'yes' %}active{% endif %}" aria-hidden="{% if form.has_additional_tabs == 'yes' %}false{% else %}true{% endif %}">
+        <div id="additional-tabs-list" class="additional-tabs-list">
+          {% if form.has_additional_tabs == 'yes' and form.additional_sheet_names %}
+            {% for name in form.additional_sheet_names %}
+              <div class="sheet-input-row">
+                <input type="text" name="additional_sheet_name" placeholder="Enter tab name (exact)" value="{{ name }}" />
+                {% if loop.index > 1 %}
+                  <button type="button" class="remove-sheet-btn">Remove</button>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+        <button id="add-sheet-btn" type="button" class="secondary-action">Additional Sheet?</button>
+      </div>
 
       <label for="option">Workflow Option</label>
       <select id="option" name="option">
-        <option value="base">Base</option>
-        <option value="front-range">Front Range</option>
-        <option value="lp">LP</option>
-        <option value="lender">Lender</option>
+        <option value="base" {% if form.option == 'base' %}selected{% endif %}>Base</option>
+        <option value="front-range" {% if form.option == 'front-range' %}selected{% endif %}>Front Range</option>
+        <option value="lp" {% if form.option == 'lp' %}selected{% endif %}>LP</option>
+        <option value="lender" {% if form.option == 'lender' %}selected{% endif %}>Lender</option>
       </select>
 
       <button id="run-btn" type="submit">Run Workflow</button>
@@ -69,6 +91,10 @@
           <div class="meta-item"><strong>Project Type:</strong> <code>{{ result.project_type }}</code></div>
           <div class="meta-item"><strong>Market:</strong> <code>{{ result.market }}</code></div>
           <div class="meta-item"><strong>Tax Abatement:</strong> <code>{{ result.tax_abatement }}</code></div>
+          <div class="meta-item"><strong>Additional Tabs:</strong> <code>{{ result.has_additional_tabs }}</code></div>
+          {% if result.additional_sheet_names %}
+            <div class="meta-item full"><strong>Requested Extra Tab Deletions:</strong> <code>{{ result.additional_sheet_names|join(', ') }}</code></div>
+          {% endif %}
           <div class="meta-item"><strong>Validation:</strong> <code>{{ result.validation.valid }}</code></div>
           <div class="meta-item full"><strong>Input:</strong> <code>{{ result.input_filename }}</code></div>
           <div class="meta-item full"><strong>Output:</strong> <code>{{ result.output_filename }}</code></div>
@@ -217,7 +243,80 @@
       const pct = document.getElementById('progress-percent');
       const txt = document.getElementById('progress-text');
       const btn = document.getElementById('run-btn');
+
+      const hasAdditionalTabs = document.getElementById('has_additional_tabs');
+      const additionalPanel = document.getElementById('additional-tabs-panel');
+      const additionalList = document.getElementById('additional-tabs-list');
+      const addSheetBtn = document.getElementById('add-sheet-btn');
+
       if (!form || !overlay || !bar || !pct || !txt || !btn) return;
+
+      const createRemoveButton = () => {
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'remove-sheet-btn';
+        remove.textContent = 'Remove';
+        remove.addEventListener('click', () => {
+          const row = remove.closest('.sheet-input-row');
+          if (!row) return;
+          row.remove();
+          normalizeAdditionalRows();
+        });
+        return remove;
+      };
+
+      const createAdditionalRow = (value = '') => {
+        const row = document.createElement('div');
+        row.className = 'sheet-input-row';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'additional_sheet_name';
+        input.placeholder = 'Enter tab name (exact)';
+        input.value = value;
+        row.appendChild(input);
+
+        row.appendChild(createRemoveButton());
+        return row;
+      };
+
+      const normalizeAdditionalRows = () => {
+        if (!hasAdditionalTabs || !additionalPanel || !additionalList || !addSheetBtn) return;
+
+        const isYes = hasAdditionalTabs.value === 'yes';
+        if (isYes && additionalList.children.length === 0) {
+          additionalList.appendChild(createAdditionalRow(''));
+        }
+
+        const rows = Array.from(additionalList.querySelectorAll('.sheet-input-row'));
+        rows.forEach((row) => {
+          const input = row.querySelector('input[name="additional_sheet_name"]');
+          if (input) input.disabled = !isYes;
+
+          let removeBtn = row.querySelector('.remove-sheet-btn');
+          if (rows.length <= 1) {
+            if (removeBtn) removeBtn.remove();
+          } else if (!removeBtn) {
+            row.appendChild(createRemoveButton());
+            removeBtn = row.querySelector('.remove-sheet-btn');
+          }
+
+          if (removeBtn) removeBtn.disabled = !isYes;
+        });
+
+        addSheetBtn.disabled = !isYes;
+        additionalPanel.classList.toggle('active', isYes);
+        additionalPanel.setAttribute('aria-hidden', isYes ? 'false' : 'true');
+      };
+
+      if (hasAdditionalTabs && additionalPanel && additionalList && addSheetBtn) {
+        hasAdditionalTabs.addEventListener('change', normalizeAdditionalRows);
+        addSheetBtn.addEventListener('click', () => {
+          additionalList.appendChild(createAdditionalRow(''));
+          normalizeAdditionalRows();
+        });
+        normalizeAdditionalRows();
+      }
 
       const messages = [
         'Preparing workbook...',
@@ -239,7 +338,7 @@
 
         const startPct = 5;
         const endPct = 90;
-        const rampMs = 15 * 60 * 1000; // 15 minutes to reach 90%
+        const rampMs = 15 * 60 * 1000;
         const startAt = Date.now();
 
         let progress = startPct;
@@ -271,3 +370,6 @@
 
 </body>
 </html>
+
+
+

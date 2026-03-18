@@ -28,7 +28,6 @@ app = Flask(
 app.secret_key = os.getenv("VERVE_APP_SECRET", "").strip() or os.urandom(32).hex()
 
 
-
 def login_required(view_func):
     return view_func
 
@@ -39,9 +38,9 @@ def login():
 
 
 @app.route("/logout", methods=["POST"])
-
 def logout():
     return redirect(url_for("index"))
+
 
 def build_run_diagnostics(run_log: list[str], validation: dict, report: dict) -> dict:
     log_lines = run_log or []
@@ -139,22 +138,68 @@ def download_diagnostics(run_id: str, filename: str):
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
-    context = {"result": None, "error": None}
+    context = {
+        "result": None,
+        "error": None,
+        "form": {
+            "project_type": "VERVE",
+            "market": "",
+            "tax_abatement": "no",
+            "option": "base",
+            "has_additional_tabs": "no",
+            "additional_sheet_names": [],
+        },
+    }
+
     if request.method == "POST":
+        form_state = context["form"]
         file = request.files.get("workbook")
+
         option = (request.form.get("option") or "base").strip().lower()
         if option not in {"base", "front-range", "lp", "lender"}:
             option = "base"
+        form_state["option"] = option
+
         project_type = (request.form.get("project_type") or "VERVE").strip().upper()
         if project_type not in {"VERVE", "EVER", "LOCAL"}:
             project_type = "VERVE"
+        form_state["project_type"] = project_type
+
         market = (request.form.get("market") or "").strip()
+        form_state["market"] = market
         if not market:
             context["error"] = "Market is required."
             return render_template("index.html", **context)
+
         tax_abatement = (request.form.get("tax_abatement") or "no").strip().lower()
         if tax_abatement not in {"yes", "no"}:
             tax_abatement = "no"
+        form_state["tax_abatement"] = tax_abatement
+
+        has_additional_tabs = (request.form.get("has_additional_tabs") or "no").strip().lower()
+        if has_additional_tabs not in {"yes", "no"}:
+            has_additional_tabs = "no"
+
+        additional_sheet_names: list[str] = []
+        if has_additional_tabs == "yes":
+            seen: set[str] = set()
+            for raw in request.form.getlist("additional_sheet_name"):
+                name = (raw or "").strip()
+                if not name:
+                    continue
+                key = name.lower()
+                if key in seen:
+                    continue
+                additional_sheet_names.append(name)
+                seen.add(key)
+            if not additional_sheet_names:
+                context["error"] = "Add at least one sheet name when 'Additional tabs added to template?' is set to Yes."
+                form_state["has_additional_tabs"] = has_additional_tabs
+                form_state["additional_sheet_names"] = additional_sheet_names
+                return render_template("index.html", **context)
+
+        form_state["has_additional_tabs"] = has_additional_tabs
+        form_state["additional_sheet_names"] = additional_sheet_names
 
         if not file or not file.filename:
             context["error"] = "Select an .xlsm or .xlsx file."
@@ -173,9 +218,11 @@ def index():
             previous_tax_setting = os.environ.get("VERVE_TAX_ABATEMENT")
             previous_project_type = os.environ.get("VERVE_PROJECT_TYPE")
             previous_market = os.environ.get("VERVE_MARKET")
+            previous_additional_tabs = os.environ.get("VERVE_ADDITIONAL_DELETE_TABS")
             os.environ["VERVE_TAX_ABATEMENT"] = tax_abatement
             os.environ["VERVE_PROJECT_TYPE"] = project_type
             os.environ["VERVE_MARKET"] = market
+            os.environ["VERVE_ADDITIONAL_DELETE_TABS"] = json.dumps(additional_sheet_names)
             try:
                 runner = get_runner(input_path, option=option)
                 run_result = runner.run(output_dir=run_dir)
@@ -192,6 +239,11 @@ def index():
                     os.environ.pop("VERVE_MARKET", None)
                 else:
                     os.environ["VERVE_MARKET"] = previous_market
+                if previous_additional_tabs is None:
+                    os.environ.pop("VERVE_ADDITIONAL_DELETE_TABS", None)
+                else:
+                    os.environ["VERVE_ADDITIONAL_DELETE_TABS"] = previous_additional_tabs
+
             output_file = Path(run_result["output_file"])
             assertions = ASSERTIONS_BASE
             if option == "lp":
@@ -209,6 +261,8 @@ def index():
                 "project_type": project_type,
                 "market": market,
                 "tax_abatement": tax_abatement,
+                "has_additional_tabs": has_additional_tabs,
+                "additional_sheet_names": additional_sheet_names,
                 "input_filename": input_path.name,
                 "output_filename": output_file.name,
                 "diagnostics_filename": diagnostics_filename,
@@ -230,6 +284,8 @@ def index():
                 "project_type": project_type,
                 "market": market,
                 "tax_abatement": tax_abatement,
+                "has_additional_tabs": has_additional_tabs,
+                "additional_sheet_names": additional_sheet_names,
                 "input_filename": input_path.name,
                 "output_filename": output_file.name,
                 "diagnostics_filename": diagnostics_filename,
@@ -248,6 +304,3 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5050)
-
-
-
