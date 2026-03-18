@@ -4,9 +4,8 @@ from pathlib import Path
 import json
 import os
 from uuid import uuid4
-from functools import wraps
 
-from flask import Flask, render_template, request, send_from_directory, abort, session, redirect, url_for
+from flask import Flask, render_template, request, send_from_directory, abort, redirect, url_for
 
 from app.engine import WorkflowError
 from app.engine_factory import get_runner
@@ -20,8 +19,6 @@ WEB_UPLOADS.mkdir(parents=True, exist_ok=True)
 ASSERTIONS_BASE = BASE / "VERVE-Proforma-Cleaner-v1.1-Assertions.json"
 ASSERTIONS_LP = BASE / "VERVE-Proforma-Cleaner-v1.1-LP-Assertions.json"
 ASSERTIONS_LENDER = BASE / "VERVE-Proforma-Cleaner-v1.1-Lender-Assertions.json"
-APP_LOGIN_USER = os.getenv("VERVE_APP_USER", "").strip()
-APP_LOGIN_PASSWORD = os.getenv("VERVE_APP_PASSWORD", "").strip()
 
 app = Flask(
     __name__,
@@ -33,40 +30,18 @@ app.secret_key = os.getenv("VERVE_APP_SECRET", "").strip() or os.urandom(32).hex
 
 
 def login_required(view_func):
-    @wraps(view_func)
-    def _wrapped(*args, **kwargs):
-        if not session.get("authenticated"):
-            return redirect(url_for("login"))
-        return view_func(*args, **kwargs)
-
-    return _wrapped
+    return view_func
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if session.get("authenticated"):
-        return redirect(url_for("index"))
-
-    error = None
-    if not APP_LOGIN_USER or not APP_LOGIN_PASSWORD:
-        error = "Authentication is not configured. Set VERVE_APP_USER and VERVE_APP_PASSWORD."
-        return render_template("login.html", error=error)
-
-    if request.method == "POST":
-        username = (request.form.get("username") or "").strip()
-        password = request.form.get("password") or ""
-        if username == APP_LOGIN_USER and password == APP_LOGIN_PASSWORD:
-            session["authenticated"] = True
-            return redirect(url_for("index"))
-        error = "Invalid username or password."
-
-    return render_template("login.html", error=error)
+    return redirect(url_for("index"))
 
 
 @app.route("/logout", methods=["POST"])
+
 def logout():
-    session.clear()
-    return redirect(url_for("login"))
+    return redirect(url_for("index"))
 
 def build_run_diagnostics(run_log: list[str], validation: dict, report: dict) -> dict:
     log_lines = run_log or []
