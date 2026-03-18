@@ -7,7 +7,7 @@ from pathlib import Path
 from app.engine_factory import get_runner
 from app.validator import validate_workbook
 
-BASE = Path(__file__).resolve().parent
+BASE = Path(__file__).resolve().parent.parent
 RUNS_ROOT = BASE / "runs"
 OPTION_OUTPUT_DIRS = {
     "base": RUNS_ROOT / "base-tests",
@@ -16,10 +16,10 @@ OPTION_OUTPUT_DIRS = {
     "lender": RUNS_ROOT / "lender-tests",
 }
 OPTION_ASSERTIONS = {
-    "base": BASE / "VERVE-Proforma-Cleaner-v1.1-Assertions.json",
-    "front-range": BASE / "VERVE-Proforma-Cleaner-v1.1-Assertions.json",
-    "lp": BASE / "VERVE-Proforma-Cleaner-v1.1-LP-Assertions.json",
-    "lender": BASE / "VERVE-Proforma-Cleaner-v1.1-Lender-Assertions.json",
+    "base": BASE / "config" / "assertions" / "VERVE-Proforma-Cleaner-v1.1-Assertions.json",
+    "front-range": BASE / "config" / "assertions" / "VERVE-Proforma-Cleaner-v1.1-Assertions.json",
+    "lp": BASE / "config" / "assertions" / "VERVE-Proforma-Cleaner-v1.1-LP-Assertions.json",
+    "lender": BASE / "config" / "assertions" / "VERVE-Proforma-Cleaner-v1.1-Lender-Assertions.json",
 }
 
 

@@ -1,4 +1,4 @@
-﻿param(
+param(
     [int]$Port = 5050
 )
 
@@ -31,7 +31,7 @@ function Ensure-PipPackages {
 
     Write-Host "Installing/updating Python dependencies..." -ForegroundColor Yellow
     & $VenvPython -m pip install --upgrade pip
-    & $VenvPython -m pip install -r requirements.txt
+    & $VenvPython -m pip install -r config\\requirements.txt
 
     # Force key packages as a safety net for first-time installs.
     & $VenvPython -m pip install pywin32 openpyxl Flask

@@ -16,9 +16,9 @@ BASE = Path(__file__).resolve().parent.parent
 RUNS_ROOT = BASE / "runs"
 WEB_UPLOADS = RUNS_ROOT / "web-submissions"
 WEB_UPLOADS.mkdir(parents=True, exist_ok=True)
-ASSERTIONS_BASE = BASE / "VERVE-Proforma-Cleaner-v1.1-Assertions.json"
-ASSERTIONS_LP = BASE / "VERVE-Proforma-Cleaner-v1.1-LP-Assertions.json"
-ASSERTIONS_LENDER = BASE / "VERVE-Proforma-Cleaner-v1.1-Lender-Assertions.json"
+ASSERTIONS_BASE = BASE / "config" / "assertions" / "VERVE-Proforma-Cleaner-v1.1-Assertions.json"
+ASSERTIONS_LP = BASE / "config" / "assertions" / "VERVE-Proforma-Cleaner-v1.1-LP-Assertions.json"
+ASSERTIONS_LENDER = BASE / "config" / "assertions" / "VERVE-Proforma-Cleaner-v1.1-Lender-Assertions.json"
 
 app = Flask(
     __name__,
