@@ -472,16 +472,31 @@ class VerveWorkflowRunner:
 
     def _step_10_conditional_delete_cashflow_row(self) -> None:
         ws = self._sheet("Cash Flow")
-        vws = self._values_sheet("Cash Flow")
-        if not ws or not vws:
+        if not ws:
             return
-        q46 = vws["Q46"].value
-        q47 = vws["Q47"].value
-        if q46 == q47:
-            ws.delete_rows(47, 1)
-            self.log.add("Step 10: deleted Cash Flow row 47")
-        else:
-            self.log.add("Step 10: condition not met")
+
+        tax_pref = self._tax_abatement_pref()
+        if tax_pref != "no":
+            self.log.add("Step 10: skipped (tax_abatement != no)")
+            return
+
+        target = "return on cost (net of tax abatement)"
+        max_row = ws.max_row
+        max_col = min(ws.max_column, 40)
+
+        for row in range(1, max_row + 1):
+            found = False
+            for col in range(1, max_col + 1):
+                v = ws.cell(row, col).value
+                if isinstance(v, str) and target in v.strip().lower():
+                    found = True
+                    break
+            if found:
+                ws.row_dimensions[row].hidden = True
+                self.log.add(f"Step 10: hid Cash Flow row {row} for tax_abatement=no")
+                return
+
+        self.log.add("Step 10: target label not found")
 
     def _step_11_blue_to_black_assumptions(self) -> None:
         self._step_2_blue_to_black("Assumptions", {"0066FF", "0070C0", "00B0F0", "1F497D"})
