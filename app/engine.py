@@ -755,7 +755,6 @@ class VerveWorkflowRunner:
         self.log.add("Step 37: cleared Development L21:O31")
 
     def _step_38_clear_yellow_reference_cells(self) -> None:
-        refs = ["'cash flow'!q46", "'executive summary'!l6", "'executive summary'!r10"]
         cleared = 0
         for sname in ["Development", "Assumptions"]:
             ws = self._sheet(sname)
@@ -765,13 +764,15 @@ class VerveWorkflowRunner:
                 for c in row:
                     formula = c.value if isinstance(c.value, str) and c.value.startswith("=") else ""
                     low = formula.lower()
+                    has_cashflow_ref = ("'cash flow'!" in low) or ("cash flow!" in low)
                     fill = self._normalize_rgb(getattr(c.fill.fgColor, "rgb", None) if c.fill else None)
-                    if fill == "FFFF00" and any(r in low for r in refs):
+                    if has_cashflow_ref:
                         c.value = ""
-                        c.fill = copy(WHITE_FILL)
+                        if fill == "FFFF00":
+                            c.fill = copy(WHITE_FILL)
                         c.border = copy(NO_BORDER)
                         cleared += 1
-        self.log.add(f"Step 38: cleared {cleared} yellow reference cells")
+        self.log.add(f"Step 38: cleared {cleared} Cash Flow reference cells in Development/Assumptions")
 
     def _step_39_remove_non_approved_fill_colors_assumptions(self) -> None:
         ws = self._sheet("Assumptions")
