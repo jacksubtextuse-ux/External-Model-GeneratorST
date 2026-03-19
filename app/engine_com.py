@@ -993,8 +993,6 @@ class VerveWorkflowRunnerCom:
                         cell.Value = ""
                         if fill_hex == "FFFF00":
                             cell.Interior.Color = 16777215
-                        for idx in [7, 8, 9, 10, 11, 12]:
-                            cell.Borders(idx).LineStyle = self.XL_NONE
                         cleared += 1
         self.log.add(f"Step 38: cleared {cleared} Cash Flow/Executive Summary reference cells in Development/Assumptions")
     def _step_39_remove_non_approved_fill_colors_assumptions(self) -> None:

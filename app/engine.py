@@ -771,7 +771,6 @@ class VerveWorkflowRunner:
                         c.value = ""
                         if fill == "FFFF00":
                             c.fill = copy(WHITE_FILL)
-                        c.border = copy(NO_BORDER)
                         cleared += 1
         self.log.add(f"Step 38: cleared {cleared} Cash Flow/Executive Summary reference cells in Development/Assumptions")
 

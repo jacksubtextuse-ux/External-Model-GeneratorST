@@ -74,7 +74,7 @@ Transforms a raw VERVE `.xlsm` proforma workbook into a clean, investor-ready wo
 35. Delete `TermSheet-Ignore`.
 36. Delete `Proforma Comparison`.
 37. Clear `Development!L21:O31` to white and borderless state.
-38. In Development/Assumptions, clear any cell whose formula references the `Cash Flow` tab or `Executive Summary` tab (any cell); remove borders; if fill is yellow then reset it to white.
+38. In Development/Assumptions, clear any cell whose formula references the `Cash Flow` tab or `Executive Summary` tab (any cell); preserve borders; if fill is yellow then reset it to white.
 39. Assumptions: reset non-approved fill colors to white (approved: `#002060`, `#DCE6F1`, `#FFFFFF`).
 40. Assumptions: find `Residential Parking Spaces`, hardcode adjacent right cell value.
 41. Assumptions: copy `W22:X26` -> `AC22:AD26` with full formatting (`copyFrom all`).
