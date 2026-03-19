@@ -987,15 +987,16 @@ class VerveWorkflowRunnerCom:
                     f = cell.Formula
                     low = f.lower() if isinstance(f, str) else ""
                     has_cashflow_ref = ("'cash flow'!" in low) or ("cash flow!" in low)
+                    has_exec_summary_ref = ("'executive summary'!" in low) or ("executive summary!" in low)
                     fill_hex = self._rgb_hex_from_excel_color(cell.Interior.Color)
-                    if has_cashflow_ref:
+                    if has_cashflow_ref or has_exec_summary_ref:
                         cell.Value = ""
                         if fill_hex == "FFFF00":
                             cell.Interior.Color = 16777215
                         for idx in [7, 8, 9, 10, 11, 12]:
                             cell.Borders(idx).LineStyle = self.XL_NONE
                         cleared += 1
-        self.log.add(f"Step 38: cleared {cleared} Cash Flow reference cells in Development/Assumptions")
+        self.log.add(f"Step 38: cleared {cleared} Cash Flow/Executive Summary reference cells in Development/Assumptions")
     def _step_39_remove_non_approved_fill_colors_assumptions(self) -> None:
         ws = self._ws("Assumptions")
         if ws is None:
