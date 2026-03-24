@@ -128,19 +128,15 @@ try {
 $url = "http://127.0.0.1:$Port"
 Write-Host "Starting local server (Ctrl+C to stop)..." -ForegroundColor Green
 
-$browserJob = Start-Job -ScriptBlock {
-    param([string]$TargetUrl)
-    $deadline = (Get-Date).AddSeconds(90)
-    while ((Get-Date) -lt $deadline) {
-        try {
-            Invoke-WebRequest -Uri $TargetUrl -UseBasicParsing -TimeoutSec 2 | Out-Null
-            Start-Process $TargetUrl | Out-Null
-            return
-        } catch {
-            Start-Sleep -Milliseconds 700
-        }
-    }
-} -ArgumentList $url
+# Avoid Start-Job (blocked in some corporate environments). Open browser after short delay.
+$browserCmd = "Start-Sleep -Seconds 3; Start-Process '$url'"
+Start-Process -FilePath "powershell.exe" -WindowStyle Hidden -ArgumentList @(
+    "-NoProfile",
+    "-ExecutionPolicy",
+    "Bypass",
+    "-Command",
+    $browserCmd
+) | Out-Null
 
 try {
     & $venvPython -m app.web
@@ -150,11 +146,4 @@ try {
     Write-Host $_.Exception.Message -ForegroundColor Red
     Read-Host "Press Enter to close"
     exit 1
-} finally {
-    if ($browserJob) {
-        try {
-            Stop-Job -Id $browserJob.Id -ErrorAction SilentlyContinue | Out-Null
-            Remove-Job -Id $browserJob.Id -Force -ErrorAction SilentlyContinue | Out-Null
-        } catch { }
-    }
 }
