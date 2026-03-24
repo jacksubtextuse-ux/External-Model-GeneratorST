@@ -70,7 +70,7 @@ function Resolve-Python {
         }
     }
 
-    Write-Host "ERROR PY003: Python install completed but no runnable launcher is available in this session. Ask Dev Analysts for help." -ForegroundColor Red
+    Write-Host "ERROR PY003: Python install completed but no runnable launcher is available in this session. Please restart Mr. Clean." -ForegroundColor Red
     exit 1
 }
 
