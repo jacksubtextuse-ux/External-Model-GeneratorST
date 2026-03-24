@@ -126,8 +126,35 @@ try {
 }
 
 $url = "http://127.0.0.1:$Port"
-Write-Host "Opening $url" -ForegroundColor Green
-Start-Process $url
-
 Write-Host "Starting local server (Ctrl+C to stop)..." -ForegroundColor Green
-& $venvPython -m app.web
+
+$browserJob = Start-Job -ScriptBlock {
+    param([string]$TargetUrl)
+    $deadline = (Get-Date).AddSeconds(90)
+    while ((Get-Date) -lt $deadline) {
+        try {
+            Invoke-WebRequest -Uri $TargetUrl -UseBasicParsing -TimeoutSec 2 | Out-Null
+            Start-Process $TargetUrl | Out-Null
+            return
+        } catch {
+            Start-Sleep -Milliseconds 700
+        }
+    }
+} -ArgumentList $url
+
+try {
+    & $venvPython -m app.web
+} catch {
+    Write-Host "" -ForegroundColor Red
+    Write-Host "Server startup failed." -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+    Read-Host "Press Enter to close"
+    exit 1
+} finally {
+    if ($browserJob) {
+        try {
+            Stop-Job -Id $browserJob.Id -ErrorAction SilentlyContinue | Out-Null
+            Remove-Job -Id $browserJob.Id -Force -ErrorAction SilentlyContinue | Out-Null
+        } catch { }
+    }
+}
